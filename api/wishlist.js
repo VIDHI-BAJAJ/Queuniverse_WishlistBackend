@@ -3,7 +3,18 @@
 
 const SHOPIFY_STORE = process.env.SHOPIFY_STORE_URL;   // yourstore.myshopify.com
 const SHOPIFY_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '*';
+
+// Strip whitespace, newlines, and trailing slashes from origin to avoid header errors
+function cleanOrigin(value) {
+  if (!value) return '*';
+  // Remove all whitespace (spaces, tabs, newlines, carriage returns)
+  let s = String(value).replace(/\s+/g, '');
+  // Remove trailing slashes
+  s = s.replace(/\/+$/, '');
+  return s || '*';
+}
+const ALLOWED_ORIGIN = cleanOrigin(process.env.ALLOWED_ORIGIN);
+
 const API_SECRET = process.env.WISHLIST_API_SECRET || '';
 
 // ─── Shopify GraphQL helper ───────────────────────────────────────────────────
@@ -46,7 +57,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (err) {
     console.error('[Wishlist API Error]', err.message);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error', detail: err.message });
   }
 };
 
