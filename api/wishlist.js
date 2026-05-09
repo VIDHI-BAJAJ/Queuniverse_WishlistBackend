@@ -73,8 +73,9 @@ async function addToWishlist(req, res) {
   }
 
   const cleanPhone = sanitizePhone(phone);
-  if (cleanPhone.length < 7) {
-    return res.status(400).json({ error: 'Invalid phone number' });
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanPhone);
+  if (!isEmail && cleanPhone.replace(/[^\d]/g, '').length < 7) {
+    return res.status(400).json({ error: 'Invalid phone number or email' });
   }
 
   const cleanName = sanitizeName(customer_name);
@@ -195,8 +196,13 @@ async function findEntry(phone, product_id) {
 }
 
 function sanitizePhone(phone) {
-  // Keep digits, +, spaces, dashes, parentheses; strip everything else
-  return String(phone).replace(/[^\d+\s\-()]/g, '').trim().substring(0, 20);
+  const val = String(phone).trim();
+  // If it looks like an email, sanitize as email
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+    return val.toLowerCase().substring(0, 100);
+  }
+  // Otherwise sanitize as phone number
+  return val.replace(/[^\d+\s\-()]/g, '').trim().substring(0, 20);
 }
 
 function sanitizeName(name) {
