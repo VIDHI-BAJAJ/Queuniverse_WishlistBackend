@@ -625,7 +625,9 @@ html,body{font-family:'Inter',sans-serif;background:#fff;color:#0a0a0a;-webkit-f
   function formatDate(iso) {
     if (!iso) return '—';
     try {
-      return new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+      const d = new Date(iso);
+      return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+        + ', ' + d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
     } catch { return '—'; }
   }
 
